@@ -18,7 +18,7 @@ class MainWindow(QMainWindow):
         self.resize(450, 500)  # 设置初始窗口大小为 450x500
         self.setWindowIcon(QIcon("640.ico"))
 
-        # 加载字体
+        # 加载字体，否则调用QT默认字体
         font_id = QFontDatabase.addApplicationFont("微软简粗黑.ttf")
         if font_id < 0:
             print("字体加载失败")
@@ -56,7 +56,7 @@ class MainWindow(QMainWindow):
         # 创建主部件
         self.main_widget = QWidget(self)
         self.setCentralWidget(self.main_widget)
-
+        
         # 创建主布局
         main_layout = QVBoxLayout(self.main_widget)
 
@@ -86,7 +86,7 @@ class MainWindow(QMainWindow):
         self.font_size_combo.currentTextChanged.connect(self.change_font_size_combo)
         top_layout.addWidget(self.font_size_combo)
 
-        # 添加左侧弹性空间，将以下按钮推到右侧
+        # 添加左侧弹性空间，将按钮推到右侧
         top_layout.addStretch()
 
         # 创建可折叠的按钮组容器
@@ -105,6 +105,7 @@ class MainWindow(QMainWindow):
             ("内容", self.copy_content_text),
             ("已互动", self.on_interact_button_clicked)
         ]
+        # 初始化按钮默认大小
         for text, slot in buttons:
             btn = QPushButton(text)
             btn.setFixedSize(50, 30)
@@ -166,7 +167,8 @@ class MainWindow(QMainWindow):
 
         # 设置文本框的初始字体大小
         self.change_font_size_combo()
-
+        
+    # 点击更多按钮会导致list按钮向左顶出，导致窗口大小被重构
     def toggle_collapsible_buttons(self):
         # 切换可见性
         is_visible = self.collapsible_widget.isVisible()
@@ -179,6 +181,7 @@ class MainWindow(QMainWindow):
         # 调整窗口大小
         self.adjustSize()
 
+# 下面方法为了实现已互动自动添加冗余了一次复制操作
     # 互动按钮的点击事件处理方法
     def on_interact_button_clicked(self):
         self.is_interact = True  # 设置为 True
@@ -371,9 +374,7 @@ class MainWindow(QMainWindow):
         self.enable_volume_check = checked
         self.clipboard_monitor.enable_volume_check = checked
 
-    # 时间
-    
-
+    # 退出的时候弹出窗口确认避免误触
     def closeEvent(self, event):
         # 获取当前时间
         current_time = datetime.now().time()
