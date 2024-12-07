@@ -31,10 +31,10 @@ class ClipboardMonitor(QThread):
                 print(f"ClipboardMonitor encountered an error: {e}")
 
     def is_valid_text(self, text):
-        #检查文本是否以指定的关键词开头
+        #检查文本是否以指定的关键词开头，否则不进入程序
         keywords = ['单号', '互动量', '来源', '历史', '新增发帖', '新增发布',]
         if any(text.startswith(keyword) for keyword in keywords) or any(text.startswith('\n' + keyword) for keyword in keywords):
-            # 新增条件判断
+            # 新增条件判断，保证在录单操作的返回正确
             if text.startswith('单号'):
                 if '\n' not in text and '来源' not in text:
                     return False
@@ -67,7 +67,6 @@ class ClipboardMonitor(QThread):
             processed_text += f"IP属地：{variables['IP属地']}\n"
             processed_text += f"\n内容：{variables['内容']}\n"
 
-            # 添加多条报送链接
             if variables['多条报送']:
                 processed_text += "\n链接：\n"
                 for report in variables['多条报送']:
