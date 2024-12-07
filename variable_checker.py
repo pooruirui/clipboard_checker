@@ -1,7 +1,8 @@
 # variable_checker.py
 
-from hw.huawei_crawler import fetch_huawei_data  # 导入 huawei_crawler 模块
-from xhs.xhs_crawler import fetch_xhs_data # 导入xhs_crawle 模块
+from hw.huawei_crawler import fetch_huawei_data  
+from xhs.xhs_crawler import fetch_xhs_data 
+
 class VariableChecker:
     def __init__(self, variables):
         self.variables = variables
@@ -10,11 +11,13 @@ class VariableChecker:
         self.interacted = False
 
     def check_variables(self, enable_volume_check=False, is_interact=False):
+        
         source = self.variables.get('来源', '').strip()
         if source in ['花粉论坛', '华为论坛']:
             self.hw_fetch_and_compare_data()
         if source in ['小红书']:
             self.xhs_fetch_and_compare_data()    
+        # 这里优先调用内容检查避免内容中的阵地与来源中的阵地无法对齐
         self.check_content(is_interact=is_interact)
         self.check_links()
         self.check_source()
@@ -24,11 +27,13 @@ class VariableChecker:
         self.check_engagement()
         self.check_ip_location()
         self.check_sentiment_analysis()
+        
         if enable_volume_check:
             self.check_volume()
         # 返回可能被修改的变量、异常状态和异常信息
         return self.variables, self.exception_state, self.exception_messages
-    
+
+    # 建类存储这些爬虫检查方法
     def xhs_fetch_and_compare_data(self):
         import re
         link = self.variables.get('链接', '').strip()
@@ -116,7 +121,7 @@ class VariableChecker:
                 self.exception_state = True
                 self.exception_messages.append('、'.join(updates) + '已更新')
 
-        # 登陆状态
+        # 登陆状态 # 这里新增一个检测登陆状态但无法访问帖子的账号封禁返回
         if not logged:
             self.exception_state = True
             self.exception_messages.append("当前登录状态失效，请使用小红书登录获取新的登陆状态，并重启该程序")
@@ -127,18 +132,18 @@ class VariableChecker:
         print("VC",redId)
         self.variables['userId'] = redId
         self.variables['链接'] = new_post_link
-        self.variables['评论数'] = str(commentcnt)
-        self.variables['转发数'] = str(sharecnt)
-        self.variables['点赞数'] = str(likecnt)
+        self.variables['评论数'] = int(commentcnt)
+        self.variables['转发数'] = int(sharecnt)
+        self.variables['点赞数'] = int(likecnt)
 
     def hw_fetch_and_compare_data(self):
-    # 从链接中提取 threadId
         import re
         link = self.variables.get('链接', '').strip()
         if not link:
             self.exception_state = True
             self.exception_messages.append('链接为空，无法获取数据')
             return
+        # 从链接中提取 threadId
         match = re.search(r'id_(\d+)', link)
         if not match:
             self.exception_state = True
@@ -238,7 +243,7 @@ class VariableChecker:
             self.exception_messages.append('声量大于30请建单')
 
     def check_source(self):
-        # 来源检查，替换特殊阵地的表述
+        # 来源检查，替换特殊阵地的输出表述
         source = self.variables.get('来源', '').strip()
         a = 0
         if not source:
@@ -259,7 +264,7 @@ class VariableChecker:
         if a == 1:
             self.exception_state = True
             self.exception_messages.append('来源已修改')
-            
+    
     def check_author(self):
         import re
         author = self.variables.get('作者', '').strip()
@@ -467,7 +472,7 @@ class VariableChecker:
                     content = file.read()
             if self.variables['IP属地'] not in content:
                 self.exception_state = True
-                self.exception_messages.append('IP属地不存在，请订正')
+                self.exception_messages.append('IP属地不合理，请订正')
 
 
     def check_content(self, is_interact=False):
