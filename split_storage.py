@@ -49,7 +49,7 @@ class SplitStorage:
         elif i < total_lines and any(lines[i].strip() == f'互动量上涨{num}次预警' for num in nums):
             self.variables['特殊标志'] = next(f'互动量上涨{num}次预警' for num in nums if lines[i].strip() == f'互动量上涨{num}次预警')
             i += 1
-
+        # 存储单号
         if i < total_lines:
             line = lines[i].strip()
             if line.startswith('单号：'):
@@ -105,7 +105,8 @@ class SplitStorage:
                         if not line:
                             i += 1
                             continue
-                        # 检测是否是新的报送开始，例如“微博：”开头
+                        # 检测是否是新的报送开始，例如“微博：”开头 
+                        # 在这里加入list或更调用系统完整的媒体阵地
                         if any(line.startswith(platform + '：') for platform in ['微博', '微信', '抖音', '今日头条', '百家号', '百度新闻', '搜狐', '知乎', '哔哩哔哩'
                                                                                 , '小红书', '抖音app', '虎扑体育论坛', '花粉论坛', '酷安', '网易手机端', '趣头条'
                                                                                 ,]):
